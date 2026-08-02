@@ -95,14 +95,28 @@ class MotiveDecompositionNetwork(nn.Module):
         features = self.trunk(context)
         return features, is_single_input
 
-    def _support_values_from_raw(self, raw_support: Tensor) -> Tensor:
-        if self.num_objectives != 2:
-            return self.support_activation(raw_support)
 
-        lower = torch.sigmoid(raw_support[..., 0])
-        width_fraction = torch.sigmoid(raw_support[..., 1])
-        upper = lower + width_fraction * (1.0 - lower)
-        return torch.stack((upper, 1.0 - lower), dim=-1)
+    def _project_to_valid(self, raw_support: Tensor) -> Tensor:
+        """Project raw support values onto the feasible set via a single
+        shared shift (bisection), applied identically to every coordinate --
+        works for any num_objectives, and leaves already-valid points unchanged."""
+        clipped = raw_support.clamp(0.0, 1.0)
+        sums = clipped.sum(dim=-1, keepdim=True)
+        needs_fix = sums < 1.0                       
+
+        lo = -torch.ones_like(clipped[..., :1]) * self.num_objectives
+        hi = torch.ones_like(clipped[..., :1]) * self.num_objectives
+        for _ in range(40):
+            mid = (lo + hi) / 2
+            deficit = (clipped + mid).clamp(0.0, 1.0).sum(dim=-1, keepdim=True) - 1.0
+            lo = torch.where(deficit < 0, mid, lo)
+            hi = torch.where(deficit < 0, hi, mid)
+        shift = (lo + hi) / 2
+        shifted = (clipped + shift).clamp(0.0, 1.0)
+        return torch.where(needs_fix, shifted, clipped)  
+
+    def _support_values_from_raw(self, raw_support: Tensor) -> Tensor:
+        return self._project_to_valid(raw_support)
 
     def forward_inference(self, context: Tensor) -> tuple[Tensor, Tensor]:
         features, is_single_input = self._encode_context(context)
