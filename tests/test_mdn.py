@@ -5,6 +5,7 @@ import torch
 
 from generator.mdn import MotiveDecompositionNetwork
 
+TOL = 1e-6
 
 def test_mdn_single_input_shape():
     """Single context inputs should preserve unbatched output shapes."""
@@ -63,7 +64,7 @@ def test_mdn_two_objective_support_values_are_feasible_for_single_context():
     assert support_values.shape == (2,)
     assert torch.all(support_values >= 0)
     assert torch.all(support_values <= 1)
-    assert torch.sum(support_values) >= 1.0
+    assert torch.sum(support_values) >= 1.0-TOL
 
 
 def test_mdn_two_objective_support_values_are_feasible_for_batched_contexts():
@@ -77,24 +78,61 @@ def test_mdn_two_objective_support_values_are_feasible_for_batched_contexts():
     assert support_values.shape == (5, 2)
     assert torch.all(support_values >= 0)
     assert torch.all(support_values <= 1)
-    assert torch.all(torch.sum(support_values, dim=-1) >= 1.0)
+    assert torch.all(torch.sum(support_values, dim=-1) >= 1.0-TOL)
 
 
-def test_mdn_non_two_objective_support_values_keep_softplus_path():
-    """Non-2D support outputs should preserve the existing Softplus behavior."""
+def test_mdn_three_objective_support_values_are_feasible_for_single_context():
+    """Three-objective support values should define a non-empty W_x interval."""
     torch.manual_seed(0)
     model = MotiveDecompositionNetwork(num_objectives=3)
-    with torch.no_grad():
-        model.support_head.weight.zero_()
-        model.support_head.bias.copy_(torch.tensor([2.0, 0.0, -2.0]))
-    context = torch.randn(4, 8)
+    context = torch.randn(8)
 
     _, support_values = model.forward_inference(context)
-    expected = torch.nn.functional.softplus(model.support_head.bias).expand_as(support_values)
 
-    assert support_values.shape == (4, 3)
-    assert torch.allclose(support_values, expected)
-    assert torch.any(support_values > 1.0)
+    assert support_values.shape == (3,)
+    assert torch.all(support_values >= 0)
+    assert torch.all(support_values <= 1)
+    assert torch.sum(support_values) >= 1.0-TOL
+
+
+def test_mdn_three_objective_support_values_are_feasible_for_batched_contexts():
+    """Batched three-objective support values should all define non-empty
+    W_x intervals."""
+    torch.manual_seed(0)
+    model = MotiveDecompositionNetwork(num_objectives=3)
+    context = torch.randn(5, 8)
+
+    _, support_values = model.forward_inference(context)
+
+    assert support_values.shape == (5, 3)
+    assert torch.all(support_values >= 0)
+    assert torch.all(support_values <= 1)
+    assert torch.all(torch.sum(support_values, dim=-1) >= 1.0-TOL)
+
+
+def test_mdn_support_values_are_feasible_at_extreme_magnitude():
+    """Feasibility must hold even when the input context is extreme."""
+    torch.manual_seed(0)
+    model = MotiveDecompositionNetwork(num_objectives=2)
+    context = torch.randn(20, 8) * 1e4
+
+    _, support_values = model.forward_inference(context)
+
+    assert torch.all(support_values >= 0)
+    assert torch.all(support_values <= 1)
+    assert torch.all(torch.sum(support_values, dim=-1) >= 1.0-TOL)
+    assert not torch.any(torch.isnan(support_values))
+    assert not torch.any(torch.isinf(support_values))
+
+
+def test_mdn_support_values_noop_on_already_valid_point():
+    """Projection must not alter an input that's already valid."""
+    valid_point = torch.tensor([[0.7, 0.4]])
+    model = MotiveDecompositionNetwork(num_objectives=2)
+
+    projected = model._support_values_from_raw(valid_point)
+
+    assert torch.allclose(projected, valid_point, atol=1e-5)
 
 
 def test_mdn_outputs_are_finite():
