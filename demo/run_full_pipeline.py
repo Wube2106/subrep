@@ -50,6 +50,9 @@ CERT_FILE           = "data/certificates.metta"
 LIBRARY_FILE        = "data/library.json"
 ENV_NAME            = "MO-LunarLander-v3"
 VERSION             = "0.1.0"
+# Single source for the baseline label: the certificate records it, and the
+# audit report falls back to it for candidates that never get a certificate.
+BASELINE_ID         = "idle_policy_v1"
 MDN_CHECKPOINT_PATH = "models/mdn_policy_best.pth"  # Will fallback to stub if not found
 REPORT_JSON_PATH    = "demo/artifacts/admission_report.json"
 REPORT_MD_PATH      = "demo/artifacts/admission_report.md"
@@ -160,7 +163,7 @@ def _make_certificate(
         timestamp=datetime.now(timezone.utc).isoformat(),
         seed=SEED,
         gamma=GAMMA,
-        baseline_id="idle_policy_v1",
+        baseline_id=BASELINE_ID,
         environment=ENV_NAME,
         episode_length=episode_length,
         version=VERSION,
@@ -323,6 +326,9 @@ def run_pipeline() -> dict:
                 f"(score={worst_case_score:.4f}, PDS threshold={-PDS_EPSILON:.4f})"
             )
 
+        # Defined before the branch so the rejected path can test it safely.
+        cert: Certificate | None = None
+
         if admitted_flag:
             # STORE — save to cert_store (MeTTa) then to library
             cert = _make_certificate(
@@ -368,6 +374,31 @@ def run_pipeline() -> dict:
             rejected += 1
             result_str = "REJECTED ❌"
 
+        # Audit context. An admitted skill has a stored certificate, so read the
+        # context from it rather than re-asserting literals here -- the
+        # certificate is the record of what was actually certified, and reading
+        # it means the report cannot drift from it. A rejected skill has no
+        # certificate (or had it rolled back), so its context has to come from
+        # the evaluation itself.
+        if admitted_flag and cert is not None:
+            audit_region = cert.weight_region_type
+            audit_support = cert.wx_support_values
+            audit_baseline = cert.baseline_id
+            audit_environment = cert.environment
+            audit_seed = cert.seed
+            audit_length = cert.episode_length
+        else:
+            audit_region = "FULL_SIMPLEX"
+            audit_support = None
+            audit_baseline = BASELINE_ID
+            audit_environment = ENV_NAME
+            audit_seed = SEED
+            audit_length = int(episode_length)
+
+        audit_support_feasible = (
+            support_values_feasible(audit_support) if audit_support is not None else None
+        )
+
         # Record episode data for admission report
         episode_record_dict = {
             "skill_id": skill_id,
@@ -381,16 +412,15 @@ def run_pipeline() -> dict:
             "margin": float(margin),
             "epsilon": PDS_EPSILON if active_gate == "PDS" else 0.0,
             "failure_reason": failure_reason,
-            # Audit context. This demo certifies against the full simplex, so
-            # the support fields stay empty; the schema carries them for
-            # contextual MDN_WX certification.
-            "weight_region_type": "FULL_SIMPLEX",
+            "weight_region_type": audit_region,
+            "support_values": audit_support,
+            "support_feasible": audit_support_feasible,
             "gate_evaluations": gate_evaluations,
             "rejection_category": rejection_category,
-            "baseline_id": "idle_policy_v1",
-            "environment": ENV_NAME,
-            "seed": SEED,
-            "episode_length": int(episode_length),
+            "baseline_id": audit_baseline,
+            "environment": audit_environment,
+            "seed": audit_seed,
+            "episode_length": audit_length,
         }
         episode_records.append(episode_record_dict)
         report.add_from_dict(episode_record_dict)
