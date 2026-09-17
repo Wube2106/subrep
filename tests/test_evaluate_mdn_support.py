@@ -83,6 +83,7 @@ def test_support_evaluation_reports_admission_and_reuse_failures_by_arm():
     assert full_simplex["false_admission_rate"] == 0.0
     assert full_simplex["false_rejection_rate"] == 1.0
     assert learned["reuse_shift_opportunities"] == 2.0
+    assert learned["reuse_motive_shift_context_coverage"] == 1.0
     assert learned["reuse_success_rate"] == 1.0
     assert learned["reuse_oracle_top1_agreement_rate"] == 1.0
     assert full_simplex["reuse_success_rate"] == 0.0

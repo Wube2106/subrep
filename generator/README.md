@@ -187,6 +187,69 @@ Training phases:
 - best auxiliary checkpoint restore: final policy and auxiliary checkpoints share
   the best validation state.
 
+### Train and evaluate the support head
+
+Collect probability-aware runtime decisions with the trained policy checkpoint.
+These logs contain the context, certified selected weight, and every candidate's
+certification deltas, so the same collected records can provide support targets
+and held-out downstream metrics:
+
+```bash
+python -m data_collector.collect_probability_aware_runtime_logs \
+  --decisions 3000 \
+  --save-dir data/mdn_support_runtime_logs \
+  --seed 60042 \
+  --prefix learned \
+  --behavior-mdn-checkpoint models/mdn_policy_best.pth \
+  --map-location cpu
+```
+
+Support prediction and admission metrics need one observation per context. A
+real motive-shift reuse metric needs at least two distinct observed weights at
+the same context. Collect a second pass with the same context seeds and a
+different behavior weight when that metric is required:
+
+```bash
+python -m data_collector.collect_probability_aware_runtime_logs \
+  --decisions 3000 \
+  --save-dir data/mdn_support_runtime_logs \
+  --seed 60042 \
+  --prefix comparison \
+  --behavior-weights 0.2 0.8 \
+  --gate-type PDS \
+  --pds-epsilon 0.1 \
+  --map-location cpu
+```
+
+This second pass also supplies PDS examples; the first pass supplies CDS
+examples. The evaluator reports motive-shift context coverage and leaves reuse
+metrics unavailable instead of treating a single observed weight as a shift.
+
+Fit only the support head, select it on a context-disjoint validation split, and
+evaluate the untouched test split:
+
+```bash
+python -m generator.train_mdn_support \
+  --base-checkpoint models/mdn_policy_best.pth \
+  --runtime-log-dir data/mdn_support_runtime_logs \
+  --runtime-log-pattern "*.npz" \
+  --output-checkpoint models/mdn_support_best.pth \
+  --output-dir data/mdn_support_evaluation \
+  --seed 42 \
+  --device cpu
+```
+
+This writes the split stores and manifest, the selected support checkpoint,
+`support_experiment.json`, and `support_test_report.md`. The report includes
+support error and feasibility, CDS/PDS agreement, false admission/rejection,
+reuse under the logged motive weights, and comparisons with `StubMDN`,
+`FULL_SIMPLEX`, and the training-mean constant baseline.
+
+`--weight-store` remains available when a `RuntimeCertificationPipeline` has
+already persisted `data/weight_store.json`. In that mode, pass a matching
+`--candidate-data-dir` to compute downstream candidate metrics; otherwise those
+metrics are explicitly reported as unavailable.
+
 Optional experimental flags:
 
 - `--q-loss huber`: supported, but did not improve held-out Q error in final validation.

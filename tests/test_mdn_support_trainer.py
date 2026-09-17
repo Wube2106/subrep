@@ -46,6 +46,39 @@ def test_support_trainer_one_step_runs_and_returns_finite_loss():
     assert np.isfinite(loss)
 
 
+def test_support_training_updates_only_the_support_head():
+    torch.manual_seed(0)
+    model = MotiveDecompositionNetwork()
+    trainer = MDNSupportTrainer(model, _store_with_targets(), device="cpu")
+    support_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model.support_head.named_parameters()
+    }
+    trunk_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model.trunk.named_parameters()
+    }
+    distribution_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model.distribution_head.named_parameters()
+    }
+
+    trainer.training_step()
+
+    assert any(
+        not torch.equal(support_before[name], parameter)
+        for name, parameter in model.support_head.named_parameters()
+    )
+    assert all(
+        torch.equal(trunk_before[name], parameter)
+        for name, parameter in model.trunk.named_parameters()
+    )
+    assert all(
+        torch.equal(distribution_before[name], parameter)
+        for name, parameter in model.distribution_head.named_parameters()
+    )
+
+
 def test_support_trainer_updates_support_predictions_toward_targets():
     torch.manual_seed(0)
     model = MotiveDecompositionNetwork()
