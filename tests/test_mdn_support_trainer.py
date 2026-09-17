@@ -74,6 +74,34 @@ def test_support_trainer_updates_support_predictions_toward_targets():
     assert after_loss < before_loss
 
 
+def test_support_trainer_fit_selects_by_separate_validation_store():
+    torch.manual_seed(0)
+    model = MotiveDecompositionNetwork()
+    validation_store = WeightSetStore(num_objectives=2)
+    validation_store.observe_certified_weight(
+        np.array([0.3] * 8, dtype=np.float32),
+        np.array([0.6, 0.4], dtype=np.float32),
+    )
+    trainer = MDNSupportTrainer(
+        model,
+        _store_with_targets(),
+        config=SupportTrainerConfig(
+            learning_rate=5e-3,
+            max_epochs=3,
+            early_stopping_patience=2,
+        ),
+        device="cpu",
+    )
+
+    metrics = trainer.fit(validation_store)
+
+    assert 1.0 <= metrics["epochs_completed"] <= 3.0
+    assert 0.0 <= metrics["best_epoch"] <= metrics["epochs_completed"]
+    assert np.isfinite(metrics["train_mse"])
+    assert np.isfinite(metrics["validation_mse"])
+    assert metrics["validation_feasibility_violation_rate"] == 0.0
+
+
 def test_support_trainer_checkpoint_round_trip(tmp_path: Path):
     torch.manual_seed(0)
     model = MotiveDecompositionNetwork()

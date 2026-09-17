@@ -118,6 +118,13 @@ Support values are trained separately by `MDNSupportTrainer`
 support-function targets from a `WeightSetStore`, driven via
 `utils.mdn_support_pipeline.observe_and_train_support`.
 
+For offline, leakage-controlled support fitting, use
+`generator.train_mdn_support`. It groups every observed vertex for one context
+into the same train, validation, or test partition; uses validation MSE for
+model selection; and evaluates the untouched test partition against `StubMDN`
+and `FULL_SIMPLEX`. Generated reports include target semantics, metric
+definitions, and limitations.
+
 Two things to know about that trainer:
 
 - It exposes `last_feasibility_violation_rate`, a **diagnostic only** — never
@@ -138,8 +145,8 @@ Recommended training collection:
 
 ```bash
 python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets --seed 42 --prefix seed42
-python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets --seed 43 --prefix seed43
-python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets --seed 44 --prefix seed44
+python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets --seed 10042 --prefix seed10042
+python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets --seed 20042 --prefix seed20042
 ```
 
 This gives 3,000 contexts and 21,000 candidate outcomes with the default seven
@@ -148,10 +155,14 @@ candidate policies.
 Recommended held-out collection:
 
 ```bash
-python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 100 --prefix seed100
-python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 101 --prefix seed101
-python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 102 --prefix seed102
+python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 30042 --prefix seed30042
+python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 40042 --prefix seed40042
+python -m data_collector.collect_candidate_sets --contexts 1000 --save-dir data/mdn_candidate_sets_eval --seed 50042 --prefix seed50042
 ```
+
+These ranges are intentionally separated. Do not use consecutive base seeds for
+multi-context collections: each run uses `base_seed + context_index`, so
+consecutive bases create almost entirely overlapping context seeds.
 
 ## Train the MDN
 
@@ -204,7 +215,9 @@ The evaluator reports:
 - per-objective Q MSE and MAE,
 - bootstrap confidence intervals.
 
-Reference held-out validation after the support-geometry fix:
+Historical candidate-set validation after the support-geometry fix (not a
+support-head evaluation, and not leakage-free under the old overlapping seed
+commands):
 
 | Metric | Mean |
 |---|---:|
@@ -262,6 +275,7 @@ python -m pytest tests/test_generator.py tests/test_generator_training.py -v
 python -m pytest tests/test_mdn.py tests/test_mdn_skill_selection.py -v
 # SASP guarantees + downstream generalization
 python -m pytest tests/test_skill_library.py tests/test_mdn_support_trainer.py tests/test_mdn_stub.py -v
+python -m pytest tests/test_mdn_support_data.py tests/test_evaluate_mdn_support.py tests/test_train_mdn_support.py -v
 python -m pytest tests/test_train_mdn_candidate_sets.py tests/test_evaluate_mdn_candidate_sets.py -v
 python -m pytest tests/test_trained_mdn_end_to_end.py tests/test_trained_mdn_zero_shot.py -v
 ```
