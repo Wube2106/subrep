@@ -9,6 +9,10 @@ from typing import Any
 import numpy as np
 
 from utils.weight_set_store import WeightSetStore
+from utils.probability_aware_logs import (
+    load_probability_aware_log,
+    probability_aware_log_files,
+)
 
 
 @dataclass(frozen=True)
@@ -19,6 +23,119 @@ class SupportStoreSplit:
     validation: WeightSetStore
     test: WeightSetStore
     manifest: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class SupportEvaluationCandidate:
+    """Candidate improvements needed for held-out admission evaluation."""
+
+    skill_id: str
+    delta_r: float
+    delta_n: tuple[float, ...]
+    gate_type: str
+    epsilon: float | None = None
+
+
+@dataclass(frozen=True)
+class SupportEvaluationCandidateSet:
+    """One same-context candidate set from a collected runtime decision."""
+
+    context: tuple[float, ...]
+    source: str
+    candidates: tuple[SupportEvaluationCandidate, ...]
+
+
+def runtime_logs_to_support_data(
+    directory: str,
+    *,
+    pattern: str = "*.npz",
+) -> tuple[WeightSetStore, tuple[SupportEvaluationCandidateSet, ...]]:
+    """Build support targets and candidate evaluations from validated runtime logs.
+
+    Each probability-aware log records a selected certified candidate and the
+    simplex weight used for that decision. Repeated logs at one rounded context
+    become multiple vertices of the same empirical support target.
+    """
+    files = probability_aware_log_files(directory, pattern=pattern)
+    store: WeightSetStore | None = None
+    candidate_sets: list[SupportEvaluationCandidateSet] = []
+    context_dimension: int | None = None
+
+    for path in files:
+        record = load_probability_aware_log(path)
+        context = np.asarray(record["context"], dtype=np.float32).reshape(-1)
+        weights = np.asarray(record["weights_used"], dtype=np.float32).reshape(-1)
+        if store is None:
+            store = WeightSetStore(num_objectives=len(weights))
+            context_dimension = len(context)
+        elif len(weights) != store.num_objectives:
+            raise ValueError(
+                f"Runtime log {path} has {len(weights)} objectives; expected {store.num_objectives}"
+            )
+        if len(context) != context_dimension:
+            raise ValueError(
+                f"Runtime log {path} has context dimension {len(context)}; expected {context_dimension}"
+            )
+        store.observe_certified_weight(context, weights)
+
+        skill_ids = np.asarray(record["candidate_skill_ids"]).reshape(-1)
+        delta_r = np.asarray(record["candidate_delta_r"], dtype=np.float32).reshape(-1)
+        delta_n = np.asarray(record["candidate_delta_n"], dtype=np.float32)
+        gate_types = np.asarray(
+            record.get("candidate_gate_types", np.asarray(["CDS"] * len(skill_ids)))
+        ).reshape(-1)
+        if gate_types.shape != (len(skill_ids),):
+            raise ValueError(f"Runtime log {path} candidate_gate_types length is invalid")
+        normalized_gate_types = [str(value).strip().upper() for value in gate_types]
+        invalid_gate_types = sorted(set(normalized_gate_types) - {"CDS", "PDS"})
+        if invalid_gate_types:
+            raise ValueError(
+                f"Runtime log {path} contains unsupported gate types: {invalid_gate_types}"
+            )
+
+        epsilon_values = record.get("candidate_epsilons")
+        if epsilon_values is None:
+            epsilons: list[float | None] = [None] * len(skill_ids)
+            if "PDS" in normalized_gate_types:
+                raise ValueError(
+                    f"Runtime log {path} contains PDS candidates but no candidate_epsilons"
+                )
+        else:
+            epsilon_array = np.asarray(epsilon_values, dtype=np.float32).reshape(-1)
+            if epsilon_array.shape != (len(skill_ids),):
+                raise ValueError(f"Runtime log {path} candidate_epsilons length is invalid")
+            epsilons = []
+            for gate_type, value in zip(normalized_gate_types, epsilon_array):
+                if gate_type == "PDS":
+                    if not np.isfinite(value) or value < 0.0:
+                        raise ValueError(
+                            f"Runtime log {path} PDS epsilon must be finite and non-negative"
+                        )
+                    epsilons.append(float(value))
+                else:
+                    epsilons.append(None if not np.isfinite(value) else float(value))
+
+        candidates = tuple(
+            SupportEvaluationCandidate(
+                skill_id=str(skill_ids[index]),
+                delta_r=float(delta_r[index]),
+                delta_n=tuple(float(value) for value in delta_n[index]),
+                gate_type=normalized_gate_types[index],
+                epsilon=epsilons[index],
+            )
+            for index in range(len(skill_ids))
+        )
+        candidate_sets.append(
+            SupportEvaluationCandidateSet(
+                context=tuple(float(value) for value in context),
+                source=str(path),
+                candidates=candidates,
+            )
+        )
+
+    if store is None:
+        raise ValueError("Runtime support data requires at least one validated log")
+    return store, tuple(candidate_sets)
 
 
 def split_weight_set_store(

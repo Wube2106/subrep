@@ -17,6 +17,11 @@ from generator.evaluate_mdn_candidate_sets import compute_idle_baseline_stats
 from utils.mdn_checkpoint_loader import load_mdn_checkpoint
 from utils.mdn_data_adapter import candidate_set_directory_to_prepared_candidate_outcomes
 from utils.mdn_record_builder import PreparedCandidateOutcome
+from utils.mdn_support_data import (
+    SupportEvaluationCandidate,
+    SupportEvaluationCandidateSet,
+    runtime_logs_to_support_data,
+)
 from utils.mdn_stub import StubMDN
 from utils.weight_set_store import WeightSetStore
 
@@ -27,6 +32,7 @@ def evaluate_support_models(
     *,
     constant_baseline_support: np.ndarray | None = None,
     candidate_outcomes: Iterable[PreparedCandidateOutcome] | None = None,
+    candidate_sets: Iterable[SupportEvaluationCandidateSet] | None = None,
     baseline_stats: dict[str, Any] | None = None,
     device: str = "cpu",
 ) -> dict[str, Any]:
@@ -83,15 +89,22 @@ def evaluate_support_models(
     }
 
     outcomes = tuple(candidate_outcomes or ())
+    normalized_candidate_sets = tuple(candidate_sets or ())
+    if outcomes and normalized_candidate_sets:
+        raise ValueError("Provide candidate_outcomes or candidate_sets, not both")
     if outcomes and baseline_stats is None:
         raise ValueError("baseline_stats are required when candidate outcomes are provided")
     if outcomes:
+        normalized_candidate_sets = _candidate_sets_from_outcomes(
+            outcomes,
+            baseline_stats=baseline_stats or {},
+        )
+    if normalized_candidate_sets:
         downstream = _evaluate_downstream(
             test_store,
             target_rows,
             predictions_by_arm,
-            outcomes,
-            baseline_stats=baseline_stats or {},
+            normalized_candidate_sets,
         )
     else:
         downstream = {
@@ -108,7 +121,9 @@ def evaluate_support_models(
         ),
         "held_out_contexts": int(test_store.context_count()),
         "held_out_vertices": int(test_store.total_vertex_count()),
-        "candidate_outcomes_supplied": int(len(outcomes)),
+        "candidate_outcomes_supplied": int(
+            sum(len(candidate_set.candidates) for candidate_set in normalized_candidate_sets)
+        ),
         "stub_full_simplex_support_equivalent": bool(
             np.array_equal(stub_support, full_simplex_support)
         ),
@@ -171,8 +186,8 @@ def write_support_evaluation_report(report: dict[str, Any], path: str | Path) ->
         "",
         "## Results",
         "",
-        "| Arm | Support MSE | Feasibility violations | CDS agreement | PDS agreement | False admission | False rejection | Reuse success |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Arm | Support MSE | Feasibility violations | CDS agreement | PDS agreement | False admission | False rejection | Shift coverage | Reuse success |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for name, metrics in report["arms"].items():
         lines.append(
@@ -186,6 +201,7 @@ def write_support_evaluation_report(report: dict[str, Any], path: str | Path) ->
                     _format_metric(metrics["pds_agreement_rate"]),
                     _format_metric(metrics["false_admission_rate"]),
                     _format_metric(metrics["false_rejection_rate"]),
+                    _format_metric(metrics["reuse_motive_shift_context_coverage"]),
                     _format_metric(metrics["reuse_success_rate"]),
                 ]
             )
@@ -200,6 +216,8 @@ def write_support_evaluation_report(report: dict[str, Any], path: str | Path) ->
             "Reuse success is the fraction of held-out observed motive shifts where the arm "
             "returns a candidate that is admitted under the held-out target region. Exact "
             "oracle top-1 agreement is reported in the JSON artifact.",
+            "Reuse metrics require at least two distinct observed weights at a context; "
+            "the JSON artifact reports motive-shift context coverage.",
             "",
             "Metrics are `nan` when no matching candidate contexts or no relevant class "
             "denominator exists. Such values are missing evidence, not zero error.",
@@ -236,9 +254,7 @@ def _evaluate_downstream(
     store: WeightSetStore,
     target_rows: list[tuple[np.ndarray, np.ndarray]],
     predictions_by_arm: dict[str, np.ndarray],
-    outcomes: tuple[PreparedCandidateOutcome, ...],
-    *,
-    baseline_stats: dict[str, Any],
+    candidate_sets: tuple[SupportEvaluationCandidateSet, ...],
 ) -> dict[str, dict[str, float]]:
     target_by_key = {
         store.context_key(context): target for context, target in target_rows
@@ -254,35 +270,24 @@ def _evaluate_downstream(
         store.context_key(context): vertices
         for context, vertices in store.get_all_context_vertices()
     }
-    grouped: dict[
-        tuple[float, ...], dict[str, list[PreparedCandidateOutcome]]
-    ] = {}
-    for outcome in outcomes:
-        key = store.context_key(np.asarray(outcome.context, dtype=np.float32))
-        source = str(outcome.metadata.get("candidate_set_path", ""))
-        grouped.setdefault(key, {}).setdefault(source, []).append(outcome)
+    grouped: dict[tuple[float, ...], list[SupportEvaluationCandidateSet]] = {}
+    for candidate_set in candidate_sets:
+        key = store.context_key(np.asarray(candidate_set.context, dtype=np.float32))
+        grouped.setdefault(key, []).append(candidate_set)
 
     accumulators = {name: _new_downstream_accumulator() for name in predictions_by_arm}
-    calculator = ImprovementCalculator(baseline_stats)
     matched_context_keys: set[tuple[float, ...]] = set()
+    motive_shift_context_keys: set[tuple[float, ...]] = set()
     for key, target_support in target_by_key.items():
-        context_groups = tuple(grouped.get(key, {}).values())
+        context_groups = tuple(grouped.get(key, ()))
         if context_groups:
             matched_context_keys.add(key)
-        for group in context_groups:
-            candidates = []
-            for outcome in group:
-                delta_r, delta_n = calculator.compute_improvements(outcome.payoff, outcome.motives)
-                candidates.append(
-                    {
-                        "skill_id": outcome.skill_id,
-                        "delta_r": delta_r,
-                        "delta_n": delta_n,
-                        "gate_type": outcome.gate_type,
-                        "epsilon": outcome.epsilon,
-                    }
-                )
-
+        motive_shifts = np.unique(vertices_by_key[key], axis=0)
+        has_motive_shift = len(motive_shifts) >= 2
+        if context_groups and has_motive_shift:
+            motive_shift_context_keys.add(key)
+        for candidate_set in context_groups:
+            candidates = list(candidate_set.candidates)
             target_admission = [
                 _candidate_admitted(candidate, target_support) for candidate in candidates
             ]
@@ -294,33 +299,68 @@ def _evaluate_downstream(
                 _accumulate_classification(
                     accumulators[arm_name], candidates, target_admission, predicted_admission
                 )
-                _accumulate_reuse(
-                    accumulators[arm_name],
-                    candidates,
-                    target_admission,
-                    predicted_admission,
-                    vertices_by_key[key],
-                )
+                if has_motive_shift:
+                    _accumulate_reuse(
+                        accumulators[arm_name],
+                        candidates,
+                        target_admission,
+                        predicted_admission,
+                        motive_shifts,
+                    )
 
     return {
         name: _finalize_downstream_metrics(
             accumulator,
             matched_contexts=len(matched_context_keys),
+            motive_shift_contexts=len(motive_shift_context_keys),
             held_out_contexts=store.context_count(),
         )
         for name, accumulator in accumulators.items()
     }
 
 
-def _candidate_admitted(candidate: dict[str, Any], support_values: np.ndarray) -> bool:
-    if candidate["gate_type"] == "CDS":
+def _candidate_sets_from_outcomes(
+    outcomes: tuple[PreparedCandidateOutcome, ...],
+    *,
+    baseline_stats: dict[str, Any],
+) -> tuple[SupportEvaluationCandidateSet, ...]:
+    calculator = ImprovementCalculator(baseline_stats)
+    grouped: dict[tuple[tuple[float, ...], str], list[SupportEvaluationCandidate]] = {}
+    for outcome in outcomes:
+        delta_r, delta_n = calculator.compute_improvements(outcome.payoff, outcome.motives)
+        source = str(outcome.metadata.get("candidate_set_path", ""))
+        key = (outcome.context, source)
+        grouped.setdefault(key, []).append(
+            SupportEvaluationCandidate(
+                skill_id=outcome.skill_id,
+                delta_r=delta_r,
+                delta_n=tuple(float(value) for value in delta_n),
+                gate_type=outcome.gate_type,
+                epsilon=outcome.epsilon,
+            )
+        )
+    return tuple(
+        SupportEvaluationCandidateSet(
+            context=context,
+            source=source,
+            candidates=tuple(candidates),
+        )
+        for (context, source), candidates in grouped.items()
+    )
+
+
+def _candidate_admitted(
+    candidate: SupportEvaluationCandidate,
+    support_values: np.ndarray,
+) -> bool:
+    if candidate.gate_type == "CDS":
         gate = CDSGate()
     else:
-        epsilon = 0.1 if candidate["epsilon"] is None else float(candidate["epsilon"])
+        epsilon = 0.1 if candidate.epsilon is None else float(candidate.epsilon)
         gate = PDSGate(epsilon=epsilon)
     return gate.admit(
-        candidate["delta_r"],
-        candidate["delta_n"],
+        candidate.delta_r,
+        np.asarray(candidate.delta_n, dtype=np.float32),
         support_values=support_values,
     )
 
@@ -347,7 +387,7 @@ def _new_downstream_accumulator() -> dict[str, float]:
 
 def _accumulate_classification(
     accumulator: dict[str, float],
-    candidates: list[dict[str, Any]],
+    candidates: list[SupportEvaluationCandidate],
     target: list[bool],
     predicted: list[bool],
 ) -> None:
@@ -358,14 +398,14 @@ def _accumulate_classification(
         accumulator["negative"] += float(not truth)
         accumulator["false_positive"] += float(estimate and not truth)
         accumulator["false_negative"] += float(truth and not estimate)
-        gate_prefix = "cds" if candidate["gate_type"] == "CDS" else "pds"
+        gate_prefix = "cds" if candidate.gate_type == "CDS" else "pds"
         accumulator[f"{gate_prefix}_total"] += 1.0
         accumulator[f"{gate_prefix}_correct"] += float(truth == estimate)
 
 
 def _accumulate_reuse(
     accumulator: dict[str, float],
-    candidates: list[dict[str, Any]],
+    candidates: list[SupportEvaluationCandidate],
     target_admission: list[bool],
     predicted_admission: list[bool],
     motive_shifts: np.ndarray,
@@ -393,7 +433,7 @@ def _accumulate_reuse(
 
 
 def _select_index(
-    candidates: list[dict[str, Any]],
+    candidates: list[SupportEvaluationCandidate],
     indices: list[int],
     weights: np.ndarray,
 ) -> tuple[int, float]:
@@ -401,15 +441,15 @@ def _select_index(
         (
             index,
             float(
-                candidates[index]["delta_r"]
-                + np.dot(weights, candidates[index]["delta_n"])
+                candidates[index].delta_r
+                + np.dot(weights, candidates[index].delta_n)
             ),
         )
         for index in indices
     ]
     best_index, best_score = min(
         scored,
-        key=lambda item: (-item[1], str(candidates[item[0]]["skill_id"])),
+        key=lambda item: (-item[1], candidates[item[0]].skill_id),
     )
     return best_index, best_score
 
@@ -418,11 +458,16 @@ def _finalize_downstream_metrics(
     accumulator: dict[str, float],
     *,
     matched_contexts: int,
+    motive_shift_contexts: int,
     held_out_contexts: int,
 ) -> dict[str, float]:
     return {
         "candidate_contexts_matched": float(matched_contexts),
         "candidate_context_coverage": _safe_rate(float(matched_contexts), float(held_out_contexts)),
+        "reuse_motive_shift_contexts": float(motive_shift_contexts),
+        "reuse_motive_shift_context_coverage": _safe_rate(
+            float(motive_shift_contexts), float(held_out_contexts)
+        ),
         "candidate_admission_decisions": accumulator["total"],
         "admission_agreement_rate": _safe_rate(accumulator["correct"], accumulator["total"]),
         "cds_agreement_rate": _safe_rate(accumulator["cds_correct"], accumulator["cds_total"]),
@@ -449,6 +494,7 @@ def _unavailable_downstream_metrics(held_out_contexts: int) -> dict[str, float]:
     return _finalize_downstream_metrics(
         accumulator,
         matched_contexts=0,
+        motive_shift_contexts=0,
         held_out_contexts=held_out_contexts,
     )
 
@@ -512,6 +558,10 @@ def parse_args() -> argparse.Namespace:
         help="Optional training split used only to construct a context-independent mean baseline.",
     )
     parser.add_argument("--candidate-data-dir")
+    parser.add_argument(
+        "--runtime-log-dir",
+        help="Validated probability-aware logs used for held-out candidate metrics.",
+    )
     parser.add_argument("--pattern", default="*.npz")
     parser.add_argument("--baseline-episodes", type=int, default=20)
     parser.add_argument("--baseline-seed", type=int, default=900_000)
@@ -536,8 +586,16 @@ def main() -> None:
             np.stack([target for _, target in training_targets], axis=0), axis=0
         )
     outcomes = None
+    candidate_sets = None
+    if args.runtime_log_dir:
+        _, candidate_sets = runtime_logs_to_support_data(
+            args.runtime_log_dir,
+            pattern=args.pattern,
+        )
     baseline_stats = None
     if args.candidate_data_dir:
+        if candidate_sets is not None:
+            raise ValueError("Provide --candidate-data-dir or --runtime-log-dir, not both")
         outcomes = candidate_set_directory_to_prepared_candidate_outcomes(
             args.candidate_data_dir, pattern=args.pattern
         )
@@ -551,6 +609,7 @@ def main() -> None:
         store,
         constant_baseline_support=constant_baseline_support,
         candidate_outcomes=outcomes,
+        candidate_sets=candidate_sets,
         baseline_stats=baseline_stats,
         device=args.device,
     )

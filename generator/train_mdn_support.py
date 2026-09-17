@@ -17,14 +17,16 @@ from generator.evaluate_mdn_support import (
 from generator.mdn_support_trainer import MDNSupportTrainer, SupportTrainerConfig
 from utils.mdn_checkpoint_loader import load_mdn_checkpoint
 from utils.mdn_data_adapter import candidate_set_directory_to_prepared_candidate_outcomes
-from utils.mdn_support_data import split_weight_set_store
+from utils.mdn_support_data import runtime_logs_to_support_data, split_weight_set_store
 from utils.weight_set_store import WeightSetStore
 
 
 def run_support_head_experiment(
     *,
     base_checkpoint_path: str | Path,
-    weight_store_path: str | Path,
+    weight_store_path: str | Path | None = None,
+    runtime_log_dir: str | Path | None = None,
+    runtime_log_pattern: str = "*.npz",
     output_dir: str | Path = "data/mdn_support_evaluation",
     output_checkpoint_path: str | Path = "models/mdn_support_best.pth",
     candidate_data_dir: str | Path | None = None,
@@ -46,12 +48,32 @@ def run_support_head_experiment(
     device: str = "cpu",
 ) -> dict[str, Any]:
     """Run support-only fitting, validation selection, and untouched test evaluation."""
-    source_store = WeightSetStore.load(weight_store_path)
+    if (weight_store_path is None) == (runtime_log_dir is None):
+        raise ValueError("Provide exactly one of weight_store_path or runtime_log_dir")
+
+    logged_candidate_sets = None
+    if runtime_log_dir is not None:
+        source_store, logged_candidate_sets = runtime_logs_to_support_data(
+            str(runtime_log_dir),
+            pattern=runtime_log_pattern,
+        )
+        source_description = str(runtime_log_dir)
+    else:
+        source_store = WeightSetStore.load(weight_store_path or "")
+        source_description = str(weight_store_path)
     model = load_mdn_checkpoint(base_checkpoint_path, map_location=device)
     if model.num_objectives != source_store.num_objectives:
         raise ValueError(
             "Base checkpoint objective count does not match the support store: "
             f"{model.num_objectives} != {source_store.num_objectives}"
+        )
+    context_dimensions = {
+        int(context.shape[0]) for context, _ in source_store.get_all_context_vertices()
+    }
+    if context_dimensions != {model.input_dim}:
+        raise ValueError(
+            "Support-store context dimensions do not match the base checkpoint: "
+            f"store={sorted(context_dimensions)}, model={model.input_dim}"
         )
     split = split_weight_set_store(
         source_store,
@@ -88,7 +110,8 @@ def run_support_head_experiment(
         metadata={
             "target_semantics": "coordinate-wise maxima of observed certified-selection weights",
             "base_checkpoint_path": str(base_checkpoint_path),
-            "source_weight_store_path": str(weight_store_path),
+            "source_support_data": source_description,
+            "source_type": "runtime_logs" if runtime_log_dir is not None else "weight_store",
             "split_manifest": split.manifest,
             "training_metrics": training_metrics,
         },
@@ -96,6 +119,10 @@ def run_support_head_experiment(
 
     outcomes = None
     if candidate_data_dir is not None:
+        if logged_candidate_sets is not None:
+            raise ValueError(
+                "Runtime logs already provide candidate metrics; do not also provide candidate_data_dir"
+            )
         outcomes = candidate_set_directory_to_prepared_candidate_outcomes(
             candidate_data_dir,
             pattern=candidate_pattern,
@@ -122,6 +149,7 @@ def run_support_head_experiment(
         split.test,
         constant_baseline_support=train_mean_support,
         candidate_outcomes=outcomes,
+        candidate_sets=logged_candidate_sets,
         baseline_stats=baseline_stats,
         device=device,
     )
@@ -129,7 +157,8 @@ def run_support_head_experiment(
         "status": "completed",
         "checkpoint_path": checkpoint_path,
         "base_checkpoint_path": str(base_checkpoint_path),
-        "source_weight_store_path": str(weight_store_path),
+        "source_support_data": source_description,
+        "source_type": "runtime_logs" if runtime_log_dir is not None else "weight_store",
         "candidate_data_dir": None if candidate_data_dir is None else str(candidate_data_dir),
         "training": training_metrics,
         "split": split.manifest,
@@ -152,7 +181,13 @@ def parse_args() -> argparse.Namespace:
         description="Fit and evaluate the MDN support head with context-disjoint splits."
     )
     parser.add_argument("--base-checkpoint", required=True)
-    parser.add_argument("--weight-store", required=True)
+    source_group = parser.add_mutually_exclusive_group(required=True)
+    source_group.add_argument("--weight-store")
+    source_group.add_argument(
+        "--runtime-log-dir",
+        help="Validated probability-aware logs used to build targets and downstream metrics.",
+    )
+    parser.add_argument("--runtime-log-pattern", default="*.npz")
     parser.add_argument("--output-dir", default="data/mdn_support_evaluation")
     parser.add_argument("--output-checkpoint", default="models/mdn_support_best.pth")
     parser.add_argument("--candidate-data-dir")
@@ -179,6 +214,8 @@ def main() -> None:
     report = run_support_head_experiment(
         base_checkpoint_path=args.base_checkpoint,
         weight_store_path=args.weight_store,
+        runtime_log_dir=args.runtime_log_dir,
+        runtime_log_pattern=args.runtime_log_pattern,
         output_dir=args.output_dir,
         output_checkpoint_path=args.output_checkpoint,
         candidate_data_dir=args.candidate_data_dir,
