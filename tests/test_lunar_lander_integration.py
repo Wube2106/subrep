@@ -37,6 +37,7 @@ whole file skips without a MetaMo checkout.
 from __future__ import annotations
 
 from pathlib import Path
+from dataclasses import replace
 from typing import Callable, Dict, List, Tuple
 
 import numpy as np
@@ -45,6 +46,7 @@ import pytest
 from bridge._loader import is_available
 from bridge.budget import BudgetCoefficients
 from bridge.protocol import SkillOutcome
+from bridge.epsilon_scaling import EpsilonScalingConfig
 from data_collector.collect_candidate_sets import (
     CandidatePolicy,
     _fixed_action_policy,
@@ -60,6 +62,7 @@ from env.lunar_lander_rollout import (
 )
 from env.lunar_lander_wrapper import SubRepEnv
 from generator.mdn import MotiveDecompositionNetwork
+from utils.mdn_contracts import CandidateSkillRecord
 from utils.mdn_runtime_pipeline import (
     RuntimeCertificationPipeline,
     RuntimePipelineConfig,
@@ -135,6 +138,8 @@ def make_pipeline() -> RuntimeCertificationPipeline:
 def run_loop(
     candidates_for: Callable[[SubRepEnv], Tuple[CandidatePolicy, ...]],
     seeds=SEEDS,
+    *,
+    epsilon_scaling_enabled=True,
 ):
     """Run one decision step per seed through the real stack.
 
@@ -153,7 +158,16 @@ def run_loop(
     governor = make_lunar_lander_governor(
         payoff_scale=payoff_scale, motive_scale=motive_scale
     )
-    controller = MetaMoController(governor, make_pipeline(), seed=CONTROLLER_SEED)
+    controller = MetaMoController(
+        governor,
+        make_pipeline(),
+        seed=CONTROLLER_SEED,
+        epsilon_scaling=EpsilonScalingConfig(
+            enabled=epsilon_scaling_enabled,
+            payoff_scale=payoff_scale,
+            motive_scale=motive_scale,
+        ),
+    )
 
     records_per_step: List[list] = []
     try:
@@ -246,23 +260,79 @@ def test_crash_only_candidates_are_rejected_and_the_loop_abstains(ci_run):
     assert not np.allclose(governor.state.M, 0.5)
 
 
-def test_epsilon_cannot_change_a_lunar_lander_admission(ci_run):
-    """Records the risk-budget scale on MO-LunarLander.
-
-    Every CI candidate's PDS margin (delta_r + min delta_n) lies below
-    -EPSILON_MAX, the loosest budget MetaMo can emit, so no epsilon could admit
-    it. If objective changes are normalised later, this test is expected to
-    fail and should be updated together with that change.
-    """
-    _, _, records_per_step = ci_run
+def test_epsilon_cannot_change_a_lunar_lander_admission():
+    """Without Approach A, raw LunarLander margins remain outside epsilon."""
+    _, _, records_per_step = run_loop(
+        ci_candidates,
+        epsilon_scaling_enabled=False,
+    )
 
     margins = [
         float(r.delta_r) + float(np.min(r.delta_n))
         for records in records_per_step
         for r in records
     ]
+
     assert margins
     assert max(margins) < -EPSILON_MAX
+
+
+def test_epsilon_can_change_a_lunar_lander_admission():
+    """Approach A lets epsilon change admission for a non-crashed Safety/Fuel candidate."""
+    from bridge.controller import MetaMoController
+
+    env = SubRepEnv(seed=SEEDS[0])
+    try:
+        candidates = ci_candidates(env)
+        _, records = evaluate_candidates(env, candidates, seed=SEEDS[0])
+        payoff_scale, motive_scale = appraisal_scales(records)
+    finally:
+        env.close()
+
+    governor = make_lunar_lander_governor(
+        payoff_scale=payoff_scale,
+        motive_scale=motive_scale,
+    )
+
+    # Scaled PDS margin = 0.50 + min(-0.75, -0.75) = -0.25.
+    # It should pass at epsilon 0.50 and fail at epsilon 0.00.
+    candidate = CandidateSkillRecord(
+        skill_id="controlled_non_crashed_safety_fuel",
+        delta_r=0.50 * payoff_scale,
+        delta_n=(-0.75 * motive_scale, -0.75 * motive_scale),
+        is_certified=False,
+        gate_type="PDS",
+        metadata={"environment": "MO-LunarLander-v3", "crashed": False},
+    )
+
+    context = np.zeros(OBS_DIM, dtype=np.float32)
+    baseline_stats = {
+        "baseline_payoff": 0.0,
+        "baseline_motives": np.zeros(NUM_OBJECTIVES, dtype=np.float32),
+    }
+
+    def admitted_at(epsilon):
+        signal = replace(governor.signal(), pds_epsilon=epsilon)
+        controller = MetaMoController(
+            governor,
+            make_pipeline(),
+            seed=CONTROLLER_SEED,
+            epsilon_scaling=EpsilonScalingConfig(
+                enabled=True,
+                payoff_scale=payoff_scale,
+                motive_scale=motive_scale,
+            ),
+        )
+        (result,) = controller.certify(
+            context=context,
+            candidate_skills=[candidate],
+            baseline_stats=baseline_stats,
+            signal=signal,
+        )
+        return result.is_certified
+
+    assert admitted_at(EPSILON_MAX) is True
+    assert admitted_at(0.0) is False
 
 
 def test_the_same_seeds_reproduce_the_same_run(ci_run):

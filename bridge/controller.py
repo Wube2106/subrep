@@ -21,6 +21,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 from .protocol import GovernorSignal, SkillOutcome
+from .epsilon_scaling import (
+    EpsilonScalingConfig,
+    apply_epsilon_scale,
+)
 
 
 def _with_epsilon(candidate: Any, epsilon: float) -> Any:
@@ -83,10 +87,12 @@ class MetaMoController:
         pipeline: Any,
         *,
         seed: int = 42,
+        epsilon_scaling: Optional[EpsilonScalingConfig] = None,
     ) -> None:
         self.governor = governor
         self.pipeline = pipeline
         self.seed = int(seed)
+        self.epsilon_scaling = epsilon_scaling or EpsilonScalingConfig()
         self.history: List[StepRecord] = []
         self._step_index = 0
 
@@ -111,21 +117,63 @@ class MetaMoController:
         The MDN's Dirichlet concentration is fetched internally by the
         pipeline and never travels through this call.
         """
+        skill_ids = [candidate.skill_id for candidate in candidate_skills]
+        if len(skill_ids) != len(set(skill_ids)):
+            raise ValueError("candidate_skills must have unique skill_id values")
+
         effective_seed = self.seed if seed is None else int(seed)
         _seed_torch(effective_seed)
 
-        budgeted = [
-            _with_epsilon(candidate, signal.pds_epsilon)
-            for candidate in candidate_skills
-        ]
+        budgeted = []
+        originals = {candidate.skill_id: candidate for candidate in candidate_skills}
 
-        return self.pipeline.certify_candidate_skills(
+        for candidate in candidate_skills:
+            current = _with_epsilon(candidate, signal.pds_epsilon)
+
+            if self.epsilon_scaling.enabled and is_dataclass(current):
+                transformed = apply_epsilon_scale(
+                    delta_r=current.delta_r,
+                    delta_n=current.delta_n,
+                    epsilon=signal.pds_epsilon,
+                    payoff_scale=self.epsilon_scaling.payoff_scale,
+                    motive_scale=self.epsilon_scaling.motive_scale,
+                )
+                current = replace(
+                    current,
+                    delta_r=transformed.delta_r,
+                    delta_n=transformed.delta_n,
+                    epsilon=transformed.epsilon,
+                )
+
+            budgeted.append(current)
+
+        certified = self.pipeline.certify_candidate_skills(
             context=np.asarray(context),
             candidate_skills=budgeted,
             baseline_stats=baseline_stats,
             weights_used=signal.weights,
             cvar_confidence=signal.cvar_tail_level,
         )
+
+        restored = []
+        for result in certified:
+            original = originals.get(result.skill_id)
+            if original is None or not is_dataclass(result):
+                restored.append(result)
+                continue
+
+            metadata = getattr(original, "metadata", {}) or {}
+            crashed = bool(metadata.get("crashed", False))
+            restored.append(
+                replace(
+                    result,
+                    delta_r=original.delta_r,
+                    delta_n=original.delta_n,
+                    is_certified=False if crashed else result.is_certified,
+                )
+            )
+
+        return restored
 
     def select(
         self,

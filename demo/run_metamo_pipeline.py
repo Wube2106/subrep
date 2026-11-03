@@ -30,6 +30,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bridge import weights as weights_mod  # noqa: E402
+from bridge.epsilon_scaling import EpsilonScalingConfig  # noqa: E402
 from bridge.controller import MetaMoController  # noqa: E402
 from bridge.governor import MetaMoGovernor  # noqa: E402
 from bridge.protocol import SkillOutcome  # noqa: E402
@@ -100,6 +101,11 @@ def start_new_episode(
 
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--epsilon-scaling",
+        action="store_true",
+        help="Enable Approach A epsilon scaling for the E5 experiment.",
+    )
     parser.add_argument("--steps", type=int, default=12)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cvar-samples", type=int, default=1000)
@@ -168,7 +174,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         payoff_scale=payoff_scale,
         motive_scale=motive_scale,
     )
-    controller = MetaMoController(governor, make_pipeline(), seed=args.seed)
+    epsilon_config = (
+        EpsilonScalingConfig(
+            enabled=True,
+            payoff_scale=payoff_scale,
+            motive_scale=motive_scale,
+        )
+        if args.epsilon_scaling
+        else None
+    )
+    controller = MetaMoController(
+        governor,
+        make_pipeline(),
+        seed=args.seed,
+        epsilon_scaling=epsilon_config,
+    )
 
     # Diagnostic: how many candidates the PDS gate alone would admit at a
     # given epsilon. Under OR semantics (use_cvar=True,
