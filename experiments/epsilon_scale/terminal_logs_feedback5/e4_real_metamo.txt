@@ -1,0 +1,15 @@
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:231: UserWarning: [33mWARN: Box low's precision lowered by casting to float32, current low.dtype=float64[0m
+  gym.logger.warn(
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:297: UserWarning: [33mWARN: Box high's precision lowered by casting to float32, current high.dtype=float64[0m
+  gym.logger.warn(
+step=0 epsilon=0.100000 epsilon_next=0.056220 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=1 epsilon=0.056220 epsilon_next=0.008874 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=2 epsilon=0.008874 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=3 epsilon=0.000000 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=4 epsilon=0.000000 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=5 epsilon=0.000000 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=6 epsilon=0.000000 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+step=7 epsilon=0.000000 epsilon_next=0.000000 admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+
+CSV saved: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/e4_real_metamo_steps.csv
+Summary saved: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/e4_real_metamo_summary.json

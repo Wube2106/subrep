@@ -1,0 +1,264 @@
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:231: UserWarning: [33mWARN: Box low's precision lowered by casting to float32, current low.dtype=float64[0m
+  gym.logger.warn(
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:297: UserWarning: [33mWARN: Box high's precision lowered by casting to float32, current high.dtype=float64[0m
+  gym.logger.warn(
+[E0] Seed 41 (1/100)
+[E0] Seed 42 (2/100)
+[E0] Seed 43 (3/100)
+[E0] Seed 44 (4/100)
+[E0] Seed 45 (5/100)
+[E0] Seed 46 (6/100)
+[E0] Seed 47 (7/100)
+[E0] Seed 48 (8/100)
+[E0] Seed 49 (9/100)
+[E0] Seed 50 (10/100)
+[E0] Seed 51 (11/100)
+[E0] Seed 52 (12/100)
+[E0] Seed 53 (13/100)
+[E0] Seed 54 (14/100)
+[E0] Seed 55 (15/100)
+[E0] Seed 56 (16/100)
+[E0] Seed 57 (17/100)
+[E0] Seed 58 (18/100)
+[E0] Seed 59 (19/100)
+[E0] Seed 60 (20/100)
+[E0] Seed 61 (21/100)
+[E0] Seed 62 (22/100)
+[E0] Seed 63 (23/100)
+[E0] Seed 64 (24/100)
+[E0] Seed 65 (25/100)
+[E0] Seed 66 (26/100)
+[E0] Seed 67 (27/100)
+[E0] Seed 68 (28/100)
+[E0] Seed 69 (29/100)
+[E0] Seed 70 (30/100)
+[E0] Seed 71 (31/100)
+[E0] Seed 72 (32/100)
+[E0] Seed 73 (33/100)
+[E0] Seed 74 (34/100)
+[E0] Seed 75 (35/100)
+[E0] Seed 76 (36/100)
+[E0] Seed 77 (37/100)
+[E0] Seed 78 (38/100)
+[E0] Seed 79 (39/100)
+[E0] Seed 80 (40/100)
+[E0] Seed 81 (41/100)
+[E0] Seed 82 (42/100)
+[E0] Seed 83 (43/100)
+[E0] Seed 84 (44/100)
+[E0] Seed 85 (45/100)
+[E0] Seed 86 (46/100)
+[E0] Seed 87 (47/100)
+[E0] Seed 88 (48/100)
+[E0] Seed 89 (49/100)
+[E0] Seed 90 (50/100)
+[E0] Seed 91 (51/100)
+[E0] Seed 92 (52/100)
+[E0] Seed 93 (53/100)
+[E0] Seed 94 (54/100)
+[E0] Seed 95 (55/100)
+[E0] Seed 96 (56/100)
+[E0] Seed 97 (57/100)
+[E0] Seed 98 (58/100)
+[E0] Seed 99 (59/100)
+[E0] Seed 100 (60/100)
+[E0] Seed 101 (61/100)
+[E0] Seed 102 (62/100)
+[E0] Seed 103 (63/100)
+[E0] Seed 104 (64/100)
+[E0] Seed 105 (65/100)
+[E0] Seed 106 (66/100)
+[E0] Seed 107 (67/100)
+[E0] Seed 108 (68/100)
+[E0] Seed 109 (69/100)
+[E0] Seed 110 (70/100)
+[E0] Seed 111 (71/100)
+[E0] Seed 112 (72/100)
+[E0] Seed 113 (73/100)
+[E0] Seed 114 (74/100)
+[E0] Seed 115 (75/100)
+[E0] Seed 116 (76/100)
+[E0] Seed 117 (77/100)
+[E0] Seed 118 (78/100)
+[E0] Seed 119 (79/100)
+[E0] Seed 120 (80/100)
+[E0] Seed 121 (81/100)
+[E0] Seed 122 (82/100)
+[E0] Seed 123 (83/100)
+[E0] Seed 124 (84/100)
+[E0] Seed 125 (85/100)
+[E0] Seed 126 (86/100)
+[E0] Seed 127 (87/100)
+[E0] Seed 128 (88/100)
+[E0] Seed 129 (89/100)
+[E0] Seed 130 (90/100)
+[E0] Seed 131 (91/100)
+[E0] Seed 132 (92/100)
+[E0] Seed 133 (93/100)
+[E0] Seed 134 (94/100)
+[E0] Seed 135 (95/100)
+[E0] Seed 136 (96/100)
+[E0] Seed 137 (97/100)
+[E0] Seed 138 (98/100)
+[E0] Seed 139 (99/100)
+[E0] Seed 140 (100/100)
+
+=== E0 Summary ===
+{
+  "experiment": "Extended-seed raw LunarLander candidate margins",
+  "seeds": [
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140
+  ],
+  "gamma": 1.0,
+  "max_steps": null,
+  "candidate_policies": [
+    "left_engine",
+    "main_engine",
+    "noop",
+    "ppo_deterministic",
+    "ppo_stochastic",
+    "random",
+    "right_engine"
+  ],
+  "candidate_record_count": 600,
+  "epsilon_values": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5
+  ],
+  "epsilon_max": 0.5,
+  "score_definition": "delta_r + min(delta_n)",
+  "score_interpretation": "Full-simplex raw PDS score before epsilon; not a claim that every runtime MDN support region uses this exact score.",
+  "score_statistics": {
+    "min": -3893.1923828125,
+    "max": 123.0,
+    "mean": -267.807449760437,
+    "median": -213.8788299560547,
+    "count_in_epsilon_flip_band": 0,
+    "fraction_in_epsilon_flip_band": 0.0,
+    "flip_band_definition": "[-0.5, 0)"
+  },
+  "admission_counts_by_epsilon": {
+    "0": 176,
+    "0.05": 176,
+    "0.1": 176,
+    "0.2": 176,
+    "0.3": 176,
+    "0.5": 176
+  },
+  "flips_between_epsilon_0_and_epsilon_max": 0,
+  "fraction_flipping_between_epsilon_0_and_epsilon_max": 0.0,
+  "seeds_with_at_least_one_flip": [],
+  "number_of_seeds_with_flips": 0,
+  "crash_records": 413,
+  "landing_success_records": 186,
+  "artifacts": {
+    "raw_csv": "experiments/epsilon_scale/results/e0_extended_seeds_candidates.csv",
+    "summary_json": "experiments/epsilon_scale/results/e0_extended_seeds_summary.json"
+  }
+}
+
+Raw records: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e0_extended_seeds_candidates.csv
+Summary:     /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e0_extended_seeds_summary.json

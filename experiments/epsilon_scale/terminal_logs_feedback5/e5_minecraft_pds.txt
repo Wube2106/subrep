@@ -1,0 +1,41 @@
+==============================================================================
+E5 — Minecraft PDS: baseline vs Approach A
+==============================================================================
+Seed: 42
+Candidates: 5
+Baseline payoff: 0.000000
+Baseline motives: [-0.00021791 -0.00436507 -0.0094616   0.0016271  -0.00477094 -0.00288498]
+Payoff scale: 0.010000
+Motive scale: 0.035927
+Approach A: delta_r / payoff_scale; delta_n / motive_scale
+Epsilon is unchanged in both conditions.
+
+Candidate inputs:
+  TorchCorridor          raw delta_r=+0.000000 raw min(delta_n)=-0.023602 scaled delta_r=+0.000000 scaled min(delta_n)=-0.656931
+  IronGolemSpawn         raw delta_r=+0.000000 raw min(delta_n)=-0.082606 scaled delta_r=+0.000000 scaled min(delta_n)=-2.299257
+  ArcherKite             raw delta_r=+0.000000 raw min(delta_n)=-0.035402 scaled delta_r=+0.000000 scaled min(delta_n)=-0.985396
+  SwingGateBarricade     raw delta_r=+0.000000 raw min(delta_n)=-0.035402 scaled delta_r=+0.000000 scaled min(delta_n)=-0.985396
+  DiscountChain          raw delta_r=+0.010000 raw min(delta_n)=-0.024587 scaled delta_r=+1.000000 scaled min(delta_n)=-0.684345
+
+  epsilon |        Baseline |      Approach A |  Changed
+----------------------------------------------------------
+    0.000 |  0/5  []          |  1/5  ['DiscountChain'] |        1
+    0.050 |  4/5  ['TorchCorridor', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        3
+    0.100 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        4
+    0.200 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        4
+    0.300 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        4
+    0.500 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        4
+    0.650 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  1/5  ['DiscountChain'] |        4
+    0.660 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  2/5  ['TorchCorridor', 'DiscountChain'] |        3
+    0.700 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  2/5  ['TorchCorridor', 'DiscountChain'] |        3
+    0.990 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  4/5  ['TorchCorridor', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |        1
+    1.000 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  4/5  ['TorchCorridor', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |        1
+    2.300 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |        0
+    2.310 |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |  5/5  ['TorchCorridor', 'IronGolemSpawn', 'ArcherKite', 'SwingGateBarricade', 'DiscountChain'] |        0
+
+Interpretation:
+- Baseline uses the original candidate improvements.
+- Approach A divides payoff and all six objective improvements
+  by the same environment-specific scales.
+- Both conditions use exactly the same epsilon values.
+- This isolates PDS admission; CVaR is not involved.

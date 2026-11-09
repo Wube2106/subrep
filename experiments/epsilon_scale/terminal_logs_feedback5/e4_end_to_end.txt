@@ -1,0 +1,80 @@
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:231: UserWarning: [33mWARN: Box low's precision lowered by casting to float32, current low.dtype=float64[0m
+  gym.logger.warn(
+/home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:297: UserWarning: [33mWARN: Box high's precision lowered by casting to float32, current high.dtype=float64[0m
+  gym.logger.warn(
+Candidate measurements (scripted candidate is labelled):
+  ppo_deterministic: delta_r=200.000000, delta_n=[326.0269470214844, -91.0], raw_margin=109.000000, landing=True, crashed=False
+  ppo_stochastic: delta_r=200.000000, delta_n=[321.7467956542969, -100.0], raw_margin=100.000000, landing=True, crashed=False
+  left_engine: delta_r=0.000000, delta_n=[-696.950439453125, -79.0], raw_margin=-696.950439, landing=False, crashed=True
+  main_engine: delta_r=0.000000, delta_n=[-771.7261962890625, -118.0], raw_margin=-771.726196, landing=False, crashed=True
+  right_engine: delta_r=0.000000, delta_n=[-491.03851318359375, -78.0], raw_margin=-491.038513, landing=False, crashed=True
+  random: delta_r=0.000000, delta_n=[-47.576454162597656, -79.0], raw_margin=-79.000000, landing=False, crashed=True
+  borderline_scripted: delta_r=5.000000, delta_n=[-20.0, -20.0], raw_margin=-15.000000, landing=not_measured, crashed=not_measured
+    NOTE: scripted certification values; not a measured PPO improvement.
+before_scaling_off step=0 epsilon=0.50 weights=[0.5, 0.5] admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=109.500000 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=100.500000 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=n/a admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=n/a admitted=False
+before_scaling_off step=1 epsilon=0.30 weights=[0.5, 0.5] admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=109.300000 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=100.300000 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=n/a admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=n/a admitted=False
+before_scaling_off step=2 epsilon=0.10 weights=[0.5, 0.5] admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=109.100000 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=100.100000 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=n/a admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=n/a admitted=False
+before_scaling_off step=3 epsilon=0.00 weights=[0.5, 0.5] admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=109.000000 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=100.000000 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=n/a admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=n/a admitted=False
+after_scaling_on step=0 epsilon=0.50 weights=[0.5, 0.5] admitted=['borderline_scripted', 'ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=2.530611 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=2.492339 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=0.164058 admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=0.475391 admitted=True
+after_scaling_on step=1 epsilon=0.30 weights=[0.5, 0.5] admitted=['borderline_scripted', 'ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=2.330611 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=2.292339 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=-0.035942 admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=0.275391 admitted=True
+after_scaling_on step=2 epsilon=0.10 weights=[0.5, 0.5] admitted=['borderline_scripted', 'ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=2.130611 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=2.092339 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=-0.235942 admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=0.075391 admitted=True
+after_scaling_on step=3 epsilon=0.00 weights=[0.5, 0.5] admitted=['ppo_deterministic', 'ppo_stochastic'] selected=ppo_deterministic landing=True crashed=False
+  candidate=ppo_deterministic raw_margin=109.000000 approach_A_margin=2.030611 pipeline_margin=2.030611 admitted=True
+  candidate=ppo_stochastic raw_margin=100.000000 approach_A_margin=1.992339 pipeline_margin=1.992339 admitted=True
+  candidate=left_engine raw_margin=-696.950439 approach_A_margin=-2.963735 pipeline_margin=n/a admitted=False
+  candidate=main_engine raw_margin=-771.726196 approach_A_margin=-3.281714 pipeline_margin=n/a admitted=False
+  candidate=right_engine raw_margin=-491.038513 approach_A_margin=-2.088108 pipeline_margin=n/a admitted=False
+  candidate=random raw_margin=-79.000000 approach_A_margin=-0.335942 pipeline_margin=-0.335942 admitted=False
+  candidate=borderline_scripted raw_margin=-15.000000 approach_A_margin=-0.024609 pipeline_margin=-0.024609 admitted=False
+
+CSV saved: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/e4_end_to_end_steps.csv
+Summary saved: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/e4_end_to_end_summary.json

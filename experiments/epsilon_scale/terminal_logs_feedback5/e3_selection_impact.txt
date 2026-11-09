@@ -1,0 +1,65 @@
+E3 selection-impact experiment completed.
+Held-out seeds: 20
+Candidate records: 220
+Selection weights: (0.5, 0.5) [Safety, Fuel]
+
+Different selected candidates vs raw-units baseline:
+
+A:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+B:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+C_payoff:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+C_motive:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+D:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+E:
+  epsilon=0: different=4/20, same=8/20, variant_no_candidate=8, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=5/20, same=13/20, variant_no_candidate=2, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=4/20, same=16/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=2/20, same=18/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+F_raw:
+  epsilon=0: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.05: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.1: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.2: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.3: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+  epsilon=0.5: different=0/20, same=20/20, variant_no_candidate=0, baseline_no_candidate=0, both_no_candidate=0
+
+CSV:     /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e3_selection_impact.csv
+Summary: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e3_selection_impact_summary.json

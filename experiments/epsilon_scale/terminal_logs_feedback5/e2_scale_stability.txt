@@ -1,0 +1,65 @@
+E2 scale stability experiment complete.
+CSV: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e2_scale_stability.csv
+JSON: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e2_scale_stability_summary.json
+
+Fixed calibration scales:
+  payoff: 82.727273
+  motive: 235.159490
+  safety: 357.073526
+  fuel: 113.245455
+
+Per-seed scale ranges:
+  payoff: min=18.181818, median=72.727273, max=90.909091
+  motive: min=149.697019, median=191.012690, max=253.249315
+  safety: min=193.992912, median=268.145545, max=405.589540
+  fuel: min=77.000000, median=109.000000, max=169.636364
+
+Fixed vs per-seed admission changes:
+  A:
+    epsilon=0: changed=0/220 (0.00%), admissions=81 -> 81
+    epsilon=0.05: changed=1/220 (0.45%), admissions=82 -> 81
+    epsilon=0.1: changed=1/220 (0.45%), admissions=82 -> 81
+    epsilon=0.2: changed=1/220 (0.45%), admissions=82 -> 81
+    epsilon=0.3: changed=10/220 (4.55%), admissions=102 -> 92
+    epsilon=0.5: changed=13/220 (5.91%), admissions=126 -> 113
+  B:
+    epsilon=0: changed=3/220 (1.36%), admissions=78 -> 77
+    epsilon=0.05: changed=3/220 (1.36%), admissions=78 -> 77
+    epsilon=0.1: changed=3/220 (1.36%), admissions=78 -> 77
+    epsilon=0.2: changed=3/220 (1.36%), admissions=78 -> 77
+    epsilon=0.3: changed=0/220 (0.00%), admissions=79 -> 79
+    epsilon=0.5: changed=13/220 (5.91%), admissions=102 -> 93
+  C_payoff:
+    epsilon=0: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.05: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.1: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.2: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.3: changed=0/220 (0.00%), admissions=76 -> 76
+    epsilon=0.5: changed=1/220 (0.45%), admissions=76 -> 77
+  C_motive:
+    epsilon=0: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.05: changed=0/220 (0.00%), admissions=75 -> 75
+    epsilon=0.1: changed=0/220 (0.00%), admissions=76 -> 76
+    epsilon=0.2: changed=1/220 (0.45%), admissions=77 -> 76
+    epsilon=0.3: changed=11/220 (5.00%), admissions=98 -> 87
+    epsilon=0.5: changed=15/220 (6.82%), admissions=124 -> 109
+
+Monotonicity violations:
+{
+  "A": {
+    "fixed": 0,
+    "per_seed": 0
+  },
+  "B": {
+    "fixed": 0,
+    "per_seed": 0
+  },
+  "C_payoff": {
+    "fixed": 0,
+    "per_seed": 0
+  },
+  "C_motive": {
+    "fixed": 0,
+    "per_seed": 0
+  }
+}

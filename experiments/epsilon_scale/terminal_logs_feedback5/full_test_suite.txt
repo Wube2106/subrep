@@ -1,0 +1,62 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 43%]
+........................................................................ [ 50%]
+........................................................................ [ 58%]
+.....xx................................................................. [ 65%]
+........................................................................ [ 72%]
+........................................................................ [ 79%]
+........................................................................ [ 87%]
+........................................................................ [ 94%]
+.......................................................                  [100%]
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+tests/test_data_collector.py: 6 warnings
+tests/test_decomposition_effects.py: 19 warnings
+tests/test_decomposition_planner.py: 1 warning
+tests/test_decomposition_recipe_book.py: 1 warning
+tests/test_decomposition_verifier.py: 2 warnings
+tests/test_end_to_end_pipeline.py: 11 warnings
+tests/test_env.py: 5 warnings
+tests/test_executor.py: 2 warnings
+tests/test_integration.py: 5 warnings
+tests/test_lunar_baseline.py: 3 warnings
+tests/test_lunar_lander_integration.py: 7 warnings
+tests/test_lunar_lander_rollout.py: 33 warnings
+tests/test_lunar_subskills.py: 12 warnings
+tests/test_mixed_generator_data.py: 2 warnings
+tests/test_pilot_performance.py: 3 warnings
+  /home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:231: UserWarning: [33mWARN: Box low's precision lowered by casting to float32, current low.dtype=float64[0m
+    gym.logger.warn(
+
+tests/test_data_collector.py: 6 warnings
+tests/test_decomposition_effects.py: 19 warnings
+tests/test_decomposition_planner.py: 1 warning
+tests/test_decomposition_recipe_book.py: 1 warning
+tests/test_decomposition_verifier.py: 2 warnings
+tests/test_end_to_end_pipeline.py: 11 warnings
+tests/test_env.py: 5 warnings
+tests/test_executor.py: 2 warnings
+tests/test_integration.py: 5 warnings
+tests/test_lunar_baseline.py: 3 warnings
+tests/test_lunar_lander_integration.py: 7 warnings
+tests/test_lunar_lander_rollout.py: 33 warnings
+tests/test_lunar_subskills.py: 12 warnings
+tests/test_mixed_generator_data.py: 2 warnings
+tests/test_pilot_performance.py: 3 warnings
+  /home/wube/subrep/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:297: UserWarning: [33mWARN: Box high's precision lowered by casting to float32, current high.dtype=float64[0m
+    gym.logger.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+989 passed, 2 xfailed, 227 warnings in 141.45s (0:02:21)

@@ -1,0 +1,387 @@
+{
+  "experiment": "E1-E: per-seed rank/quantile-based margins",
+  "formula": "rank_margin = (average_ascending_rank - candidate_count) / (candidate_count - 1); admit if rank_margin >= -epsilon",
+  "ranking_scope": "within each seed, across candidate policies",
+  "tie_handling": "average rank",
+  "training_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "heldout_seeds": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "heldout_record_count": 220,
+  "candidates_per_seed": [
+    11
+  ],
+  "epsilon_values": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5
+  ],
+  "admissions_by_epsilon": {
+    "0": 12,
+    "0.05": 24,
+    "0.1": 37,
+    "0.2": 56,
+    "0.3": 81,
+    "0.5": 119
+  },
+  "flips_epsilon_0_to_max": 107,
+  "flip_counts_by_seed": {
+    "21": 5,
+    "22": 5,
+    "23": 6,
+    "24": 6,
+    "25": 5,
+    "26": 5,
+    "27": 6,
+    "28": 5,
+    "29": 6,
+    "30": 5,
+    "31": 5,
+    "32": 5,
+    "33": 5,
+    "34": 5,
+    "35": 6,
+    "36": 6,
+    "37": 6,
+    "38": 5,
+    "39": 5,
+    "40": 5
+  },
+  "flip_percentage_overall": 48.63636363636364,
+  "per_seed_flip_rates_percentage": {
+    "21": 45.45454545454545,
+    "22": 45.45454545454545,
+    "23": 54.54545454545454,
+    "24": 54.54545454545454,
+    "25": 45.45454545454545,
+    "26": 45.45454545454545,
+    "27": 54.54545454545454,
+    "28": 45.45454545454545,
+    "29": 54.54545454545454,
+    "30": 45.45454545454545,
+    "31": 45.45454545454545,
+    "32": 45.45454545454545,
+    "33": 45.45454545454545,
+    "34": 45.45454545454545,
+    "35": 54.54545454545454,
+    "36": 54.54545454545454,
+    "37": 54.54545454545454,
+    "38": 45.45454545454545,
+    "39": 45.45454545454545,
+    "40": 45.45454545454545
+  },
+  "seed_stability": {
+    "minimum_flip_rate": 45.45454545454545,
+    "median_flip_rate": 45.45454545454545,
+    "mean_flip_rate": 48.63636363636363,
+    "maximum_flip_rate": 54.54545454545454
+  },
+  "crash_records": 137,
+  "crash_admissions_at_epsilon_max": 41,
+  "landing_records": 82,
+  "landing_admissions_at_epsilon_0_1": 36,
+  "landing_recoveries_from_0_1_to_max": 42,
+  "landing_recovery_percentage": 51.21951219512195,
+  "recovered_landing_records": [
+    {
+      "seed": 21,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 72.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 21,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 72.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 22,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 102.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 22,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 102.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 22,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": 102.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 23,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 76.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 23,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 70.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 24,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 89.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 26,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 71.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 26,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 71.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 26,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 65.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 27,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 78.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 27,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 76.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 28,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 91.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 28,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 91.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 28,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": -42.0,
+      "rank_margin": -0.4
+    },
+    {
+      "seed": 29,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 74.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 29,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 22.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 31,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 106.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 31,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 106.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 32,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 101.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 32,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 99.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 32,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 101.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 33,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 84.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 34,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 106.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 34,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 106.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 34,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": -64.0,
+      "rank_margin": -0.4
+    },
+    {
+      "seed": 34,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": 63.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 35,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 92.0,
+      "rank_margin": -0.2
+    },
+    {
+      "seed": 35,
+      "candidate_id": "ppo_noise_025",
+      "raw_score": 84.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 35,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": 75.0,
+      "rank_margin": -0.4
+    },
+    {
+      "seed": 36,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 98.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 36,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": -21.0,
+      "rank_margin": -0.4
+    },
+    {
+      "seed": 38,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 103.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 38,
+      "candidate_id": "ppo_stochastic",
+      "raw_score": 95.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 38,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 103.0,
+      "rank_margin": -0.15
+    },
+    {
+      "seed": 38,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": 77.0,
+      "rank_margin": -0.4
+    },
+    {
+      "seed": 39,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 103.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 39,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 103.0,
+      "rank_margin": -0.25
+    },
+    {
+      "seed": 40,
+      "candidate_id": "ppo_deterministic",
+      "raw_score": 110.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 40,
+      "candidate_id": "ppo_noise_01",
+      "raw_score": 110.0,
+      "rank_margin": -0.3
+    },
+    {
+      "seed": 40,
+      "candidate_id": "ppo_switch_200",
+      "raw_score": 110.0,
+      "rank_margin": -0.3
+    }
+  ],
+  "monotonicity_violations": 0,
+  "important_limit": "Relative ranking depends on the candidate set. Adding or removing candidates can change admissions. This offline full-simplex comparison is not runtime MDN-constrained certification."
+}
+
+Candidate results: /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e1_e_variants_heldout_rerun.csv
+Summary:           /home/wube/subrep-epsilon-scale/experiments/epsilon_scale/results/e1_e_variants_summary_rerun.json
