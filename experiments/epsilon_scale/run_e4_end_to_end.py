@@ -175,7 +175,6 @@ def run_mode(env, policies, candidate_records, baseline_stats, enabled):
                 float(value) for value in original.delta_n
             )
             scaled = apply_epsilon_scale(
-                method="A",
                 delta_r=float(original.delta_r),
                 delta_n=original.delta_n,
                 epsilon=float(step_record.pds_epsilon),

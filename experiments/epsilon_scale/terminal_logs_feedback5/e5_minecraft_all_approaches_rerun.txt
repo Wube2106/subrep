@@ -1,0 +1,52 @@
+====================================================================================================
+E5 EXTENSION — MINECRAFT STUB: RAW PDS VS APPROACHES A–F
+====================================================================================================
+Environment: deterministic six-objective Minecraft-shaped stub
+Seed: 42 | Horizon: 3 | Gamma: 0.99
+Candidates: 5
+Baseline task return: 0.00000000
+Payoff scale: 0.01000000
+Shared motive scale: 0.03592708
+Objective scales B: [0.06923258 0.03068208 0.02124144 0.04012272 0.01888128 0.0354024 ]
+
+Candidate raw improvements:
+  TorchCorridor          delta_r=+0.00000000 min(delta_n)=-0.02360160 raw_margin=-0.02360160
+  IronGolemSpawn         delta_r=+0.00000000 min(delta_n)=-0.08260560 raw_margin=-0.08260560
+  ArcherKite             delta_r=+0.00000000 min(delta_n)=-0.03540240 raw_margin=-0.03540240
+  SwingGateBarricade     delta_r=+0.00000000 min(delta_n)=-0.03540240 raw_margin=-0.03540240
+  DiscountChain          delta_r=+0.01000000 min(delta_n)=-0.02458653 raw_margin=-0.01458653
+
+Admission counts by epsilon:
+ epsilon |        RAW |          A |          B |   C_PAYOFF |   C_MOTIVE |          D |          E |          F
+--------------------------------------------------------------------------------------------------------------------
+   0.000 |        0/5 |        1/5 |        1/5 |        0/5 |        0/5 |        N/A |        1/5 |        0/5
+   0.050 |        4/5 |        1/5 |        1/5 |        0/5 |        0/5 |        N/A |        1/5 |        4/5
+   0.100 |        5/5 |        1/5 |        1/5 |        0/5 |        0/5 |        N/A |        1/5 |        5/5
+   0.200 |        5/5 |        1/5 |        1/5 |        0/5 |        0/5 |        N/A |        1/5 |        5/5
+   0.300 |        5/5 |        1/5 |        1/5 |        0/5 |        0/5 |        N/A |        2/5 |        5/5
+   0.500 |        5/5 |        1/5 |        1/5 |        0/5 |        1/5 |        N/A |        2/5 |        5/5
+   0.650 |        5/5 |        1/5 |        2/5 |        0/5 |        1/5 |        N/A |        4/5 |        5/5
+   0.660 |        5/5 |        2/5 |        2/5 |        0/5 |        2/5 |        N/A |        4/5 |        5/5
+   0.700 |        5/5 |        2/5 |        2/5 |        0/5 |        2/5 |        N/A |        4/5 |        5/5
+   0.990 |        5/5 |        4/5 |        3/5 |        0/5 |        4/5 |        N/A |        4/5 |        5/5
+   1.000 |        5/5 |        4/5 |        3/5 |        0/5 |        4/5 |        N/A |        5/5 |        5/5
+   2.300 |        5/5 |        5/5 |        5/5 |        1/5 |        5/5 |        N/A |        5/5 |        5/5
+   2.310 |        5/5 |        5/5 |        5/5 |        1/5 |        5/5 |        N/A |        5/5 |        5/5
+
+Method definitions:
+  RAW: original delta_r and delta_n; unchanged epsilon.
+  A: divide delta_r by payoff scale and all delta_n by shared motive scale.
+  B: divide delta_r by payoff scale and each delta_n by its own objective scale.
+  C_PAYOFF: multiply epsilon by payoff scale.
+  C_MOTIVE: multiply epsilon by shared motive scale.
+  D: multiply epsilon by absolute baseline task return.
+  E: batch-relative average-rank admission.
+  F: unchanged raw PDS baseline.
+
+Interpretation and limitations:
+  This is a controlled PDS-only comparison; CVaR and final
+  MetaMo controller selection are not included.
+  D is N/A because the Idle baseline task return is zero.
+  RAW and F should have identical admission counts.
+  E is batch-relative and should not be interpreted as a
+  per-candidate transformation.
